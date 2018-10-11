@@ -1,70 +1,32 @@
 require 'pry'
 
 class PigLatinizer
-
-  def piglatinize(word)
-    sliced = nil
-    word.split.map do |char|
-      if char[0].match(/[^aeiou]/i) && char[1].match(/[aeiou]/i)
-        sliced = word.slice!(0)
-        return word + sliced + "ay"
-      elsif char[0].match(/[^aeiou]/i) && char[1].match(/[^aeiou]/i) && !word.include?("y")
-        sliced = word.slice!(0..1)
-        return word + sliced + "ay"
-      elsif char[0].match(/[aeiou]/i)
-        return word + "way"
-      elsif char.match(/y/)
-        if word.match(/(?<=y).+/)
-          sliced = word.slice!(/(?<=y).+/)
-          return "ay" + sliced + word
-        else
-          return "ay" + word
-        end
-      end
+  def piglatinize(input_str)
+    x = (input_str.split(" ").length == 1) ? piglatinize_word(input_str) : piglatinize_sentence(input_str)
+    puts x
+    x
+  end
+ private
+  def consonant?(char)
+    !char.match(/[aAeEiIoOuU]/)
+  end
+   def piglatinize_word(word)
+    # word starts with vowel
+    if !consonant?(word[0])
+      word = word + "w"
+    # word starts with 3 consonants
+    elsif consonant?(word[0]) && consonant?(word[1]) && consonant?(word[2])
+      word = word.slice(3..-1) + word.slice(0,3)
+    # word starts with 2 consonants
+    elsif consonant?(word[0]) && consonant?(word[1])
+      word = word.slice(2..-1) + word.slice(0,2)
+    # word starts with 1 consonant
+    else
+      word = word.slice(1..-1) + word.slice(0)
     end
+    word << "ay"
   end
-
-  def piglatinize(text)
-    sliced = nil
-    text.split.map do |word|
-      word.split.map do |char|
-        if char[0].match(/[^aeiou]/i) && char[1].match(/[aeiou]/i)
-          sliced = word.slice!(0)
-           word + sliced + "ay"
-        elsif char[0].match(/[^aeiou]/i) && char[1].match(/[^aeiou]/i) && !word.include?("y")
-          sliced = word.slice!(0..1)
-          word + sliced + "ay"
-        elsif char[0].match(/[aeiou]/i)
-          word + "way"
-        elsif char.match(/y/)
-          if word.match(/(?<=y).+/)
-            sliced = word.slice!(/(?<=y).+/)
-            "ay" + sliced + word
-          else
-            "ay" + word
-          end
-        end
-      end.join(" ")
-    end.join(" ")
+   def piglatinize_sentence(sentence)
+    sentence.split.collect { |word| piglatinize_word(word) }.join(" ")
   end
-
 end
-
-
-
-
-
-inst = PigLatinizer.new
-inst_sentence = PigLatinizer.new
-
-puts inst.piglatinize("pork")
-puts inst.piglatinize("I")
-puts inst.piglatinize("hello")
-puts inst.piglatinize("please")
-puts inst.piglatinize("tomorrow")
-puts inst.piglatinize("until")
-puts inst.piglatinize("this")
-puts inst.piglatinize("Enumeration")
-puts inst.piglatinize("spray")
-puts inst.piglatinize("prays")
-puts inst.piglatinize("i love programming")
